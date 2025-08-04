@@ -48,7 +48,7 @@ int main() {
         // 6. Ler requisição
         memset(buffer, 0, sizeof(buffer));
         ssize_t bytes_received;
-        string request;
+        string req;
         do{
             bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
             if (bytes_received < 0) {
@@ -57,13 +57,14 @@ int main() {
                 continue;
             }
             buffer[bytes_received] = '\0';
-            request += buffer; 
-            if(request.size() > MAX_REQUEST_SIZE) {
+            req += buffer; 
+            if(req.size() > MAX_REQUEST_SIZE) {
                 cerr << "Request too large." << endl;
                 close(client_fd);
                 break;
             }   
         } while(bytes_received > 0);
+        Request::Request request(req);
         
         
 

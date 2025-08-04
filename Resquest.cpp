@@ -90,7 +90,7 @@ int    Request::read_headers(vector<string> &lines)
     for (size_t i = 1; i < lines.size(); i++)
     {
         params = split_string(lines[i], ":");
-        if (!lines[i][0])
+        if (!lines[i][0])//empty line before body message
             return (i + 1);
         if( params.size() < 2)
             throw runtime_error("Bad request");
@@ -107,12 +107,12 @@ int    Request::read_headers(vector<string> &lines)
         {
             res = find(valid_options["request-header"].begin(), valid_options["request-header"].end(), params[0]);
             if (res != valid_options["request-header"].end())
-                request_headers[params[0]] = request_headers[params[0]][0] ? ", " + params[1] : params[1];
+                request_headers[params[0]] += request_headers[params[0]][0] ? ", " + params[1] : params[1];
             else
-                entity_headers[params[0]] = entity_headers[params[0]][0] ? ", " + params[1] : params[1];
+                entity_headers[params[0]] += entity_headers[params[0]][0] ? ", " + params[1] : params[1];
         }
         else
-            general_headers[params[0]] = general_headers[params[0]][0] ? ", " + params[1] : params[1]; 
+            general_headers[params[0]] += general_headers[params[0]][0] ? ", " + params[1] : params[1]; 
         
     }
     return -1;
@@ -131,16 +131,24 @@ void Request::get_body(int index_body, vector<string> &lines)
 {
     for(size_t i = index_body + 1; i < lines.size(); i+=2)
     {
-        lines[index_body] += lines[i];
+        lines[index_body] += lines[i] + "/r/n";
+        this->message_body = lines[index_body];
     }
-
+    
+    int size;
     if (general_headers.find("Transfer-Encoding") != general_headers.end())
     {
-        int size;
-      
-        size = string_to_int_positive(lines[i]);
-        entity_body += lines[i + 1].substr(0, size);
-
+        for(size_t i = index_body + 1; i < lines.size(); i+=2)
+        {
+            size = string_to_int_positive(lines[i]);
+            lines[i + 1] += "/r/n";
+            entity_body += lines[i + 1].substr(0, size);
+        }
+    }
+    else
+    {
+        size = string_to_int_positive(entity_headers["Content-Length"]);
+        entity_body = this->message_body.substr(0, size);
     }
     
     
@@ -150,8 +158,8 @@ Request::Request(string &buffer)
 {
     vector<string> lines = split_string(buffer, "\r\n");
     string Request_Line = lines[0];
-    int index_body = verify_request_line(Request_Line);
-    read_headers(lines);
+    verify_request_line(Request_Line);
+    int index_body = read_headers(lines);
     specific_checks();
     get_body(index_body);
 }

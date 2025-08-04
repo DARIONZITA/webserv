@@ -13,6 +13,7 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+#include <Request.hpp>
 #define MAX_REQUEST_SIZE 8192
 using namespace std;
 vector<string>  split_string(string str, string delimiter);
