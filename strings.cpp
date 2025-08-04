@@ -1,6 +1,6 @@
 #include "server.hpp"
 #include <cctype>
-
+#include <stringstream>
 using namespace std;
 
 vector<string> split_string(string str, string delimiter)
@@ -27,4 +27,17 @@ std::string trim(const std::string& str) {
         --end;
 
     return str.substr(start, end - start);
+}
+
+
+int string_to_int_positive(char const *str)
+{
+    int i;
+    std::istringstream ss;
+    ss.exceptions(std::ios::failbit | std::ios::badbit);
+    ss.str(str);
+    ss >> i;
+    if (i < 0)
+        throw std::out_of_range("Negative numbers are not allowed");
+    return i;
 }

@@ -87,7 +87,7 @@ int    Request::read_headers(vector<string> &lines)
     vector<string>::iterator    res;
     vector<string>              params;
 
-    for (int i = 1; i < lines.size(); i++)
+    for (size_t i = 1; i < lines.size(); i++)
     {
         params = split_string(lines[i], ":");
         if (!lines[i][0])
@@ -97,7 +97,7 @@ int    Request::read_headers(vector<string> &lines)
         
         if (params.size() > 2)//if the split does more than it should
         {
-            for (int i = 2; i < params.size(); i++)
+            for (size_t i = 2; i < params.size(); i++)
                 params[1] += ":" + params[i];
         }
         params[1] = trim(params[1]);
@@ -129,10 +129,21 @@ void Request::specific_checks(void)
 
 void Request::get_body(int index_body, vector<string> &lines)
 {
-    for(int i = index_body; i < lines.size(); i++)
+    for(size_t i = index_body + 1; i < lines.size(); i+=2)
     {
-        
+        lines[index_body] += lines[i];
     }
+
+    if (general_headers.find("Transfer-Encoding") != general_headers.end())
+    {
+        int size;
+      
+        size = string_to_int_positive(lines[i]);
+        entity_body += lines[i + 1].substr(0, size);
+
+    }
+    
+    
 }
 
 Request::Request(string &buffer)
@@ -149,3 +160,28 @@ Request::~Request()
 {
 }
 
+/*
+typedef struct {
+    ngx_list_t                        headers;
+
+    ngx_table_elt_t                  *host;
+    ngx_table_elt_t                  *connection;
+    ngx_table_elt_t                  *if_modified_since;
+    ngx_table_elt_t                  *if_unmodified_since;
+    ngx_table_elt_t                  *if_match;
+    ngx_table_elt_t                  *if_none_match;
+    ngx_table_elt_t                  *user_agent;
+    ngx_table_elt_t                  *referer;
+    ngx_table_elt_t                  *content_length;
+    ngx_table_elt_t                  *content_range;
+    ngx_table_elt_t                  *content_type;
+
+    ngx_table_elt_t                  *range;
+    ngx_table_elt_t                  *if_range;
+
+    ngx_table_elt_t                  *transfer_encoding;
+    ngx_table_elt_t                  *te;
+    ngx_table_elt_t                  *expect;
+    ngx_table_elt_t                  *upgrade;
+
+*/

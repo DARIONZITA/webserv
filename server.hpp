@@ -12,8 +12,10 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <stdexcept>
 #define MAX_REQUEST_SIZE 8192
 using namespace std;
 vector<string>  split_string(string str, string delimiter);
 std::string     trim(const std::string& str);
+int             string_to_int_positive(char const *str);
 #endif
