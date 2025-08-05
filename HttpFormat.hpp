@@ -1,32 +1,27 @@
-#ifndef REQUEST_HPP
-#define REQUEST_HPP
+#ifndef HTTPFORMAT_HPP
+#define HTTPFORMAT_HPP
 #include <string>
 #include <utility>
 #include "server.hpp"
 
 
-class Request
+class HttpFormat
 {
-    private:
-        string                              _method;
-        string                              _request_URI;
+    protected:
         string                              _HTTP_Version;
         static map<string, vector<string>>  valid_options;
         map<string, string>                 general_headers;
-        map<string, string>                 request_headers;
+        map<string, string>                 operacional_headers;
         map<string, string>                 entity_headers;
         string                              entity_body;
         string                              message_body;
     public:
-        Request(string &buffer);
-        void get_method();
-        static Request *read_request(int client_fd);
-        void verify_request_line(string &request_Line);
+        HttpFormat();
+        HttpFormat(string &buffer);
         int read_headers(vector<string> &lines);
-        void specific_checks(void);
-        void action(void);
+        virtual void specific_checks(void) = 0;
         void get_body(int index_body, vector<string> &lines);
-        ~Request();
+        virtual ~HttpFormat();
 };
 
 #endif

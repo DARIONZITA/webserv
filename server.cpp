@@ -3,7 +3,7 @@ int main() {
     int server_fd, client_fd;
     struct sockaddr_in server_addr, client_addr;
     socklen_t client_len = sizeof(client_addr);
-    char buffer[1024];
+
 
     // 1. Criar socket (IPv4, TCP)
     server_fd = socket(AF_INET, SOCK_STREAM, 0);
@@ -46,25 +46,9 @@ int main() {
         cout << "Cliente conectado." << endl;
 
         // 6. Ler requisição
-        memset(buffer, 0, sizeof(buffer));
-        ssize_t bytes_received;
-        string req;
-        do{
-            bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
-            if (bytes_received < 0) {
-                perror("recv");
-                close(client_fd);
-                continue;
-            }
-            buffer[bytes_received] = '\0';
-            req += buffer; 
-            if(req.size() > MAX_REQUEST_SIZE) {
-                cerr << "Request too large." << endl;
-                close(client_fd);
-                break;
-            }   
-        } while(bytes_received > 0);
-        Request::Request request(req);
+        
+        Request *newRequest =  Request::read_request(client_fd);
+        
         
         
 

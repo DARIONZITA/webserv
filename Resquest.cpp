@@ -79,7 +79,7 @@ void    Request::verify_request_line(string& Request_Line)
         throw std::runtime_error("Bad request: invalid Http-version");
     _method = params[0];
     _request_URI = params[1];
-    _HTTP_Version = parms[2];
+    _HTTP_Version = params[2];
 }
 // -1 if after headers dont have body, n::pos other wise
 int    Request::read_headers(vector<string> &lines)
@@ -140,18 +140,57 @@ void Request::get_body(int index_body, vector<string> &lines)
     {
         for(size_t i = index_body + 1; i < lines.size(); i+=2)
         {
-            size = string_to_int_positive(lines[i]);
+            size = string_to_int_positive(lines[i].c_str());
             lines[i + 1] += "/r/n";
             entity_body += lines[i + 1].substr(0, size);
         }
     }
     else
     {
-        size = string_to_int_positive(entity_headers["Content-Length"]);
+        size = string_to_int_positive(entity_headers["Content-Length"].c_str());
         entity_body = this->message_body.substr(0, size);
     }
-    
-    
+}
+
+Request *Request::read_request(int client_fd)
+{
+    size_t  bytes_received;
+    char    buffer[1024];
+    string  req;
+
+    memset(buffer, 0, sizeof(buffer));
+    do {
+        bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
+        if (bytes_received < 0) {
+            perror("recv");
+            close(client_fd);
+            continue;
+        }
+        buffer[bytes_received] = '\0';
+        req += buffer; 
+        if (req.size() > MAX_REQUEST_SIZE) {
+            cerr << "Request too large." << endl;
+            close(client_fd);
+            break;
+        }   
+    } while (bytes_received > 0);
+
+    return (new Request(req));
+}
+
+void Request::get_method()
+{
+
+}
+
+void Request::action(void)
+{
+    if (_method == "GET")
+    {
+        get_method();
+    }
+    else if (_method == "POST"){}
+    else if (_method == "DELETE"){}
 }
 
 Request::Request(string &buffer)
@@ -161,7 +200,7 @@ Request::Request(string &buffer)
     verify_request_line(Request_Line);
     int index_body = read_headers(lines);
     specific_checks();
-    get_body(index_body);
+    get_body(index_body, lines);
 }
 
 Request::~Request()
