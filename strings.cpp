@@ -33,9 +33,20 @@ std::string trim(const std::string& str) {
 int string_to_int_positive(char const *str)
 {
     int i;
-    std::istringstream ss;
+    std::stringstream ss;
     ss.exceptions(std::ios::failbit | std::ios::badbit);
-    ss.str(str);
+    ss << str;
+    ss >> i;
+    if (i < 0)
+        throw std::out_of_range("Negative numbers are not allowed");
+    return i;
+}
+int hex_to_int_positive(char const *str)
+{
+    int i;
+    std::stringstream ss;
+    ss.exceptions(std::ios::failbit | std::ios::badbit);
+    ss << hex << str;
     ss >> i;
     if (i < 0)
         throw std::out_of_range("Negative numbers are not allowed");

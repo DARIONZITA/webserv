@@ -18,7 +18,7 @@ class Response
         string                              entity_body;
         string                              message_body;
     public:
-        Response();
+        Response(char *buffer);
         static Request  *read_request(int client_fd);
         void            verify_request_line(string &request_Line);
         int             read_headers(vector<string> &lines);

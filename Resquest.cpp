@@ -140,7 +140,7 @@ void Request::get_body(int index_body, vector<string> &lines)
     {
         for(size_t i = index_body + 1; i < lines.size(); i+=2)
         {
-            size = string_to_int_positive(lines[i].c_str());
+            size = hex_to_int_positive(lines[i].c_str());
             lines[i + 1] += "/r/n";
             entity_body += lines[i + 1].substr(0, size);
         }
