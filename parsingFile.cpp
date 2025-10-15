@@ -1,53 +1,60 @@
-#include <fstream>
-#include <vector>
-#include <string>
 #include "server.hpp"
+#include <fstream>
 
-
-
-class parsingFile
+class ParsingFile
 {
 private:
     /* data */
+    map<string, string> global_vars;
+    vector<map<string, string>> server_vars;
+    vector<vector<map<string, string>>> locations;
 public:
-    parsingFile(/* args */);
-    ~parsingFile();
+    ParsingFile(ifstream &file);
+    ~ParsingFile();
 };
 
-parsingFile::parsingFile(/* args */)
+ParsingFile::ParsingFile(ifstream &file)
 {
-}
+    string line;
+    map<string, string> *my_moment;
+    int index=0;
 
-parsingFile::~parsingFile()
-{
-}
-
-tag geral 
-tags server
-tags 
-void  parsingFileConfig(std::ifstream &file_config)
-{
-
-}
-
-int main(int argc, char **argv)
-{
-    if(argc > 2)
-        return 1;
-    //if(argc == 1)
-        //arquivo de configuraćão padrão
-    std::ifstream file_config(argv[1]);
-    
-    if (file_config.is_open())
+    while (getline(file,line))
     {
-        return -1;
+        line = trim(line);
+        if (line[0] == '[' && line[line.size() - 1] == ']')
+        {
+            if (line == "[server]"){
+                server_vars.push_back(map<string, string>());
+                my_moment = &(server_vars.back());
+                locations.push_back(vector<map<string, string>>());
+            }
+            else if (line == "[global]")
+                my_moment = &global_vars;
+            else if (line == "[location]")
+            {
+                locations.back().push_back(map<string, string>());
+                my_moment = &(locations.back().back());
+            }
+            else
+                throw runtime_error("Bad format of the configuration file");
+        }
+        else{
+            vector<string> parts = split_string(line, "=");
+            if (parts.size() < 2)
+                throw runtime_error("Bad format of the configuration file");
+            if (parts.size() > 2)
+            {
+                for(int i=2; i < parts.size(); i++)
+                    parts[1] += "=" + parts[2];
+            }
+            (*my_moment)[trim(parts[0])] = trim(parts[1]);
+        }
+        
     }
-    parsingFileConfig(file_config);
-
+    
 }
 
-
-
-tag:
-    list_tags
-    atributos
+ParsingFile::~ParsingFile()
+{
+}
