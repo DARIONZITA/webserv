@@ -7,6 +7,8 @@
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
+#include <sys/types.h>
+#include <netdb.h>
 #include <cstdio>
 
 #include <vector>
@@ -14,6 +16,7 @@
 #include <map>
 #include <stdexcept>
 #include <Request.hpp>
+
 #define MAX_REQUEST_SIZE 8192
 using namespace std;
 vector<string>  split_string(string str, string delimiter);

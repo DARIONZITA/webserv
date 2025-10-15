@@ -25,6 +25,7 @@ class Response
         void            specific_checks(void);
         void            action(void);
         void            get_body(int index_body, vector<string> &lines);
+        
         ~Request();
 };
 
