@@ -1,5 +1,5 @@
-#ifndef SERVER_HPP
-#define SERVER_HPP
+#ifndef WEBSERV_HPP
+#define WEBSERV_HPP
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
@@ -10,13 +10,20 @@
 #include <sys/types.h>
 #include <netdb.h>
 #include <cstdio>
+#include <sys/epoll.h>
+#include <fcntl.h>
+
 
 #include <vector>
 #include <string>
 #include <map>
 #include <stdexcept>
-#include <Request.hpp>
+//#include <Request.hpp>
 
+#include "Server.hpp"
+#ifdef EPOLL_HPP
+    #include "Epoll.hpp"
+#endif
 #define MAX_REQUEST_SIZE 8192
 using namespace std;
 vector<string>  split_string(string str, string delimiter);
