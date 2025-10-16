@@ -81,42 +81,50 @@ int main() {
     
     while(true)
     {
-        cout << "servidor rodando" << endl;
+        cout << "log: server running" << endl;
         _events.resize(n_monitoring);
         int qtd_fds = epoll_wait(epfd, _events.data(), _events.size(), -1);
+        cout << "log: "<< qtd_fds << " new event detected!!" << endl;
         Connection *element;
         struct epoll_event event;
-        for(int i = 0, fd_client; i < qtd_fds; i++)
+        for(int i = 0; i < qtd_fds; i++)
         {
             element = (Connection *)_events[i].data.ptr;
             if (element->_type == SERVER)
             {
-                fd_client = accept(server_fd, (sockaddr *)&addr_clien, &addrlen);
+                cout << "log: The server have a new connction for accpet" << endl;
+                int fd_client = accept(server_fd, (sockaddr *)&addr_clien, &addrlen);
                 fcntl(fd_client, F_SETFL, O_NONBLOCK);
                 event.events = EPOLLET | EPOLLIN | EPOLLOUT;
                 event.data.ptr = new Connection(fd_client, CLIENT);
-                epoll_ctl(epfd, EPOLL_CTL_ADD, fd_client, &event);
+                epoll_ctl(epfd, EPOLL_CTL_ADD, fd_client, &event);n_monitoring++;
+                cout << "log: new client with fd:" << fd_client << " added for monitoring I/O" << endl;
                 
             }
             else if (element->_type == CLIENT)
             {
-                if (_events[i].events == (EPOLLET | EPOLLIN))  
+                if ((_events[i].events)  & (EPOLLET | EPOLLIN))  
                 {
+                    cout << "log: the client " << element->_fd << " have bytes for read" << endl;
                     int siz = recv(element->_fd, &buffer, sizeof(buffer), 0); 
                     while(siz > 0)
                     {
                         result += buffer;
                         siz = recv(element->_fd, &buffer, sizeof(buffer), 0);
                     }
-                    if (siz == 0)
-                    {
+                    cout << "log: The readed was: " << result << endl;
+                    //if (siz == 0)
+                    //{
                         //verificar se é keep-alive antes
-                        event.events = EPOLLET | EPOLLIN;
-                        epoll_ctl(epfd, EPOLL_CTL_MOD, fd_client, &event);
-                    }
+                        //event.events = EPOLLET | EPOLLIN | EPOLLOUT;
+                        //epoll_ctl(epfd, EPOLL_CTL_MOD, fd_client, &event);
+                   // }
                 }
-                else if (_events[i].events == (EPOLLET | EPOLLOUT))
+                //else if
+                if ((_events[i].events) & (EPOLLOUT | EPOLLET))
                 {
+                    cout << "log: the client " << element->_fd << " can recive  bytes" << endl;
+
                     string response =
                         "HTTP/1.1 200 OK\r\n"
                         "Content-Type: text/html\r\n"
@@ -126,14 +134,20 @@ int main() {
                         "<head><title>Olá</title></head>"
                         "<body><h1>Servidor funcionando!</h1></body>"
                         "</html>";
+                    
 
-                    int siz = send(fd_client, response.c_str(), response.size(), 0);
-                    if (siz == 0)
+                    int siz = send(element->_fd, response.c_str(), response.size(), 0);
+                    if (siz == 0 || siz == static_cast<int>(response.size()))
                     {
-                        //verificar se é keep-alive antes
-                        epoll_ctl(epfd, EPOLL_CTL_ADD, fd_client, &event);
-                        close(fd_client);
+                        //verificar se é keep-alive antes 
+                        epoll_ctl(epfd, EPOLL_CTL_DEL, element->_fd, &event);
+                        close(element->_fd);
+                         cout << "log: the client " << element->_fd << " removed" << endl;
                     }
+                   // else if (siz > 0)
+                   // {
+                        
+                   // }
                 
                 }
             }
