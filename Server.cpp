@@ -1,4 +1,5 @@
 #include "Server.hpp"
+Epoll Server::_epoll;
 
 Server::Server(string port, string adress): optval(1)
 {
@@ -60,7 +61,7 @@ void Server::monitoring_fds(void)
             if (element->_type == SERVER)
             {
                 cout << "log: The server have a new connction for accpet" << endl;
-                int fd_client = accept(server_fd, (sockaddr *)&addr_clien, &addrlen);
+                int fd_client = accept(element->_fd, (sockaddr *)&addr_clien, &addrlen);
                 _epoll.add_fd(fd_client,EPOLLET | EPOLLIN | EPOLLOUT, CLIENT); 
             }
             else if (element->_type == CLIENT)
@@ -71,16 +72,17 @@ void Server::monitoring_fds(void)
                     int siz = recv(element->_fd, &buffer, sizeof(buffer), 0); 
                     while(siz > 0)
                     {
-                        result += buffer;
+                        result.append(buffer, siz);
                         siz = recv(element->_fd, &buffer, sizeof(buffer), 0);
                     }
-                    cout << "log: The readed was: " << result << endl;
+                    cout << "log: The readed was: "<< endl << result << endl;
                     //if (siz == 0)
                     //{
                         //verificar se é keep-alive antes
                         //event.events = EPOLLET | EPOLLIN | EPOLLOUT;
                         //epoll_ctl(epfd, EPOLL_CTL_MOD, fd_client, &event);
                    // }
+                   processing_request(result, );
                 }
                 //else if
                 if ((_epoll.events[i].events) & (EPOLLOUT | EPOLLET))

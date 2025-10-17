@@ -1,8 +1,8 @@
 #ifndef EPOLL_HPP
 #define EPOLL_HPP
-#ifndef WEBSERV_HPP
-    #include "webserv.hpp"
-#endif
+
+#include "includes.hpp"
+
 
 typedef enum e_typeFd
 {

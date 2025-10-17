@@ -1,5 +1,5 @@
 #include "Epoll.hpp"
-
+using namespace std;
 Epoll::Epoll():_n_monitoring(0), _epfd(epoll_create(42)){}
 
 int Epoll::add_fd(int fd, unsigned int events, typeFd type)

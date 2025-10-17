@@ -1,29 +1,10 @@
 #ifndef WEBSERV_HPP
 #define WEBSERV_HPP
-#include <iostream>
-#include <cstring>
-#include <cstdlib>
-#include <unistd.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <arpa/inet.h>
-#include <sys/types.h>
-#include <netdb.h>
-#include <cstdio>
-#include <sys/epoll.h>
-#include <fcntl.h>
-
-
-#include <vector>
-#include <string>
-#include <map>
-#include <stdexcept>
+#include "includes.hpp"
 //#include <Request.hpp>
 
+#include "Epoll.hpp"
 #include "Server.hpp"
-#ifdef EPOLL_HPP
-    #include "Epoll.hpp"
-#endif
 #define MAX_REQUEST_SIZE 8192
 using namespace std;
 vector<string>  split_string(string str, string delimiter);

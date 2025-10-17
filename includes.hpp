@@ -1,0 +1,19 @@
+#ifndef INCLUDES_HPP
+#define INCLUDES_HPP
+#include <iostream>
+#include <cstring>
+#include <cstdlib>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <sys/types.h>
+#include <netdb.h>
+#include <cstdio>
+#include <sys/epoll.h>
+#include <fcntl.h>
+#include <vector>
+#include <string>
+#include <map>
+#include <stdexcept>
+#endif

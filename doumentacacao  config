@@ -1,7 +1,10 @@
 global
+error_page = 500 502 503 /errors/5xx.html
 server
     adress
     port 
+    root (absulute url)/var/www/meusite;
+    
     
 
 locations

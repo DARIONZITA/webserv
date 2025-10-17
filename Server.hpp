@@ -8,7 +8,7 @@ using namespace std;
 class Server
 {
 private:
-    Epoll _epoll;
+    static Epoll _epoll;
     int optval;
     int server_fd;
     struct addrinfo *res;
@@ -16,7 +16,7 @@ private:
     void adding_client();
 public:
     Server(string port, string adress);
-    void monitoring_fds(void);
+    static void monitoring_fds(void);
     ~Server();
 };
 

@@ -2,7 +2,7 @@ NAME = webserv
 CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 
-SRC = webserv.cpp Epoll.cpp Server.cpp
+SRC = webserv.cpp Server.cpp Epoll.cpp 
 OBJ = $(SRC:.cpp=.o)
 
 all: $(NAME)
