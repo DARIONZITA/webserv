@@ -9,8 +9,8 @@ Server::Server(string port, string adress): optval(1)
     hints.ai_socktype = SOCK_STREAM;  // TCP
     hints.ai_flags = AI_PASSIVE; 
     int status;
-    if ((status=getaddrinfo(adress.c_str(), port.c_str(), &hints, &res)))
-        throw runtime_error(string("Bad configuration in server") + gai_strerror(status));
+    if ((status = getaddrinfo(adress.c_str(), port.c_str(), &hints, &res)))
+        throw runtime_error(string("Bad configuration in server ") + gai_strerror(status));
     struct addrinfo *aux = res;
     while(aux)
     {
@@ -41,7 +41,7 @@ Server::Server(string port, string adress): optval(1)
         cerr << "Error in socket configuration" << endl;
         throw runtime_error("Error in socket configuration");
     }
-    _epoll.add_fd(server_fd, EPOLLIN, SERVER);
+    _epoll.add_fd(server_fd, EPOLLIN, SERVER, -1);
 }
 
 void Server::monitoring_fds(void)
@@ -60,9 +60,13 @@ void Server::monitoring_fds(void)
             element = (Connection *)_epoll.events[i].data.ptr;
             if (element->_type == SERVER)
             {
-                cout << "log: The server have a new connction for accpet" << endl;
+                cout << "log: The server have a new connction for accept" << endl;
                 int fd_client = accept(element->_fd, (sockaddr *)&addr_clien, &addrlen);
-                _epoll.add_fd(fd_client,EPOLLET | EPOLLIN | EPOLLOUT, CLIENT); 
+                if (fd_client > 0)
+                {
+                    _epoll.add_fd(fd_client, EPOLLET | EPOLLIN | EPOLLOUT, CLIENT, element->_fd);
+                }
+                
             }
             else if (element->_type == CLIENT)
             {
@@ -82,7 +86,7 @@ void Server::monitoring_fds(void)
                         //event.events = EPOLLET | EPOLLIN | EPOLLOUT;
                         //epoll_ctl(epfd, EPOLL_CTL_MOD, fd_client, &event);
                    // }
-                   processing_request(result, );
+                   processing_request(result);
                 }
                 //else if
                 if ((_epoll.events[i].events) & (EPOLLOUT | EPOLLET))
@@ -106,7 +110,8 @@ void Server::monitoring_fds(void)
                         //verificar se é keep-alive antes 
                         _epoll.remove_fd(element->_fd);
                         close(element->_fd);
-                         cout << "log: the client " << element->_fd << " removed" << endl;
+                       
+                        cout << "log: the client " << element->_fd << " removed" << endl;
                     }
                    // else if (siz > 0)
                    // {
@@ -125,5 +130,6 @@ void Server::monitoring_fds(void)
 Server::~Server()
 {
     freeaddrinfo(res);
+
 }
 

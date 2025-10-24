@@ -2,19 +2,21 @@
 using namespace std;
 Epoll::Epoll():_n_monitoring(0), _epfd(epoll_create(42)){}
 
-int Epoll::add_fd(int fd, unsigned int events, typeFd type)
+int Epoll::add_fd(int fd, unsigned int events, typeFd type, int my_client)
 {
     struct epoll_event event;
     fcntl(fd, F_SETFL, O_NONBLOCK);
     event.events = events;
-    event.data.ptr = new Connection(fd, type); 
+    event.data.ptr = new Connection(fd, type, my_client); 
     epoll_ctl(_epfd, EPOLL_CTL_ADD, fd, &event);
     _n_monitoring++;
-
     cout << "log: new " << (type == SERVER? "server": "client")<< " with fd:" << fd << " added for monitoring I/O" << endl;
     return 0;
 }
-
+//SIGPIPE 
+/*
+quando o client fecha a conexão é mandado um sigpipe no servidor para termina-lo
+*/
 int Epoll::remove_fd(int fd)
 {
     epoll_ctl(_epfd, EPOLL_CTL_DEL, fd, NULL);

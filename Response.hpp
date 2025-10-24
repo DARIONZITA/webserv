@@ -2,8 +2,7 @@
 #define RESPONSE_HPP
 #include <string>
 #include <utility>
-#include "server.hpp"
-
+#include "webserv.hpp"
 
 class Response
 {

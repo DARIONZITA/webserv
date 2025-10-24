@@ -17,6 +17,7 @@ private:
 public:
     Server(string port, string adress);
     static void monitoring_fds(void);
+    static Server *get
     ~Server();
 };
 

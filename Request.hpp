@@ -2,8 +2,7 @@
 #define REQUEST_HPP
 #include <string>
 #include <utility>
-#include "server.hpp"
-
+#include "includes.hpp"
 
 class Request
 {
@@ -17,6 +16,8 @@ class Request
         map<string, string>                 entity_headers;
         string                              entity_body;
         string                              message_body;
+        static size_t                       MAX_HEADER_SIZE;
+        static size_t                       MAX_BODY_SIZE;
     public:
         Request(string &buffer);
         void get_method();
@@ -26,6 +27,7 @@ class Request
         void specific_checks(void);
         void action(void);
         void get_body(int index_body, vector<string> &lines);
+        static void define_size(size_t max_body_size, size_t max_header_size);
         ~Request();
 };
 

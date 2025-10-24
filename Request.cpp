@@ -1,5 +1,8 @@
 #include "Request.hpp"
 #include <algorithm>
+
+static size_t Request::MAX_HEADER_SIZE = 8192 * 4;
+static size_t Request::MAX_BODY_SIZE = 1m;
 static map<string, vector<string> > create_valid_options() {
     map<string, vector<string> > m;
     {
@@ -157,9 +160,14 @@ Request *Request::read_request(int client_fd)
 {
     size_t  bytes_received;
     char    buffer[1024];
-    string  req;
+    string  req_headers;
+    string  req_body;
+    string  *this_momemnt;
+    size_t  max_in_moment;
 
     memset(buffer, 0, sizeof(buffer));
+    this_momemnt = &req_headers;
+    max_in_moment = MAX_HEADER_SIZE;
     do {
         bytes_received = recv(client_fd, buffer, sizeof(buffer) - 1, 0);
         if (bytes_received < 0) {
@@ -168,8 +176,13 @@ Request *Request::read_request(int client_fd)
             continue;
         }
         buffer[bytes_received] = '\0';
-        req += buffer; 
-        if (req.size() > MAX_REQUEST_SIZE) {
+        if (String(buffer) == String("\r\n"))
+        {
+            this_momemnt = &req_body;
+            max_in_moment = MAX_BODY_SIZE;
+        }
+        (*this_momemnt) += buffer;
+        if (req.size() > max_in_moment) {
             cerr << "Request too large." << endl;
             close(client_fd);
             break;
@@ -202,6 +215,14 @@ Request::Request(string &buffer)
     int index_body = read_headers(lines);
     specific_checks();
     get_body(index_body, lines);
+}
+
+void Request::define_size(size_t max_body_size, size_t max_header_size, int mask)
+{
+    if (mask & 1)
+        Request::MAX_HEADER_SIZE = max_header_size;
+    if (mask & 2)
+        Request::MAX_BODY_SIZE = max_body_size;
 }
 
 Request::~Request()
